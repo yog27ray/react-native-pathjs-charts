@@ -97,6 +97,7 @@ export default class PieChart extends Component {
     R = (R || radius)
 
     let SR = this.props.SR
+    SR = (SR || (this.props.options && this.props.options.SR))
     SR = (SR || R)
 
     let [centerX, centerY] = this.props.center || (this.props.options && this.props.options.center) || [x, y]
