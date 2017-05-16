@@ -17,6 +17,9 @@ import React, {Component} from 'react'
 import {Text as ReactText}  from 'react-native'
 import Svg,{ G, Path, Text, Circle} from 'react-native-svg'
 import { Colors, Options, cyclic, identity, fontAdapt } from './util'
+import sector from 'paths-js/sector'
+import linear from 'paths-js/linear'
+import ops from 'paths-js/ops'
 import _ from 'lodash'
 import 'babel-polyfill'
 const Pie = require('paths-js/pie')
@@ -48,9 +51,10 @@ export default class PieChart extends Component {
 
   constructor(props) {
     super(props);
-  
+
     this.state = {
       hover:-1,
+      selected: props.selected,
     };
   }
 
@@ -92,6 +96,9 @@ export default class PieChart extends Component {
     R = (R || (this.props.options && this.props.options.R))
     R = (R || radius)
 
+    let SR = this.props.SR
+    SR = (SR || R)
+
     let [centerX, centerY] = this.props.center || (this.props.options && this.props.options.center) || [x, y]
 
     let textStyle = fontAdapt(options.label)
@@ -126,15 +133,28 @@ export default class PieChart extends Component {
         </G>
       )
     } else {
+      const accessor = this.props.accessor || identity(this.props.accessorKey);
       let chart = Pie({
         center: [centerX, centerY],
         r,
         R,
         data: this.props.data,
-        accessor: this.props.accessor || identity(this.props.accessorKey)
-      })
-
+        accessor,
+      });
+      let t = 0;
+      const values = this.props.data.map(accessor);
+      const scale = linear([0, ops.sum(values)], [0, 2 * Math.PI]);
       slices = chart.curves.map( (c, i) => {
+        if(i === this.state.selected) {
+          c.sector = sector({
+            center: [centerX, centerY],
+            r: r,
+            R: SR,
+            start: scale(t),
+            end: scale(t + values[i])
+          });
+        }
+        t += values[i];
         let fill = (c.item.color && Colors.string(c.item.color)) || this.color(i)
         let stroke = typeof fill === 'string' ? fill : Colors.darkenColor(fill)
         return (
@@ -179,6 +199,7 @@ export default class PieChart extends Component {
   _onPressItem(index) {
     this.setState({
         hover:index,
+        selected: index,
     }, () => {
       if (this.props.chartCallback != null) {
         this.props.chartCallback(index);
