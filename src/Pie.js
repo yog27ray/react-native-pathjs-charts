@@ -92,6 +92,10 @@ export default class PieChart extends Component {
     r = (isNaN(r) ? (this.props.options && this.props.options.r) : r)
     r = (isNaN(r) ? (radius / 2) : r)
 
+    let sr = this.props.sr
+    sr = (sr || (this.props.options && this.props.options.sr))
+    sr = (sr || r)
+
     let R = this.props.R
     R = (R || (this.props.options && this.props.options.R))
     R = (R || radius)
@@ -149,7 +153,7 @@ export default class PieChart extends Component {
         if(i === this.state.selected) {
           c.sector = sector({
             center: [centerX, centerY],
-            r: r,
+            r: sr,
             R: SR,
             start: scale(t),
             end: scale(t + values[i])
