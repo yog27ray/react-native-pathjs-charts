@@ -123,7 +123,7 @@ export default class PieChart extends Component {
             cx={centerX}
             cy={centerY}
             stroke={stroke}
-            fill={ this.state.hover==i ? highlightColor:outerFill}
+            fill={ this.state.hover === 0 ? highlightColor:outerFill}
             onPressIn={ this._onPressItem.bind(this, 0) }
             onPressOut={ this._onPressItemOut.bind(this) } />
           <Circle r={r} cx={centerX} cy={centerY} stroke={stroke} fill={innerFill}/>
